@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>نظام التوصيل</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
+            --primary-color: #43cea2;
+            --primary-dark: #185a9d;
+            --danger-color: #e74c3c;
+            --warning-color: #ffc107;
+            --info-color: #17a2b8;
+            --card-radius: 12px;
+            --shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.15);
+        }
+
+        * {
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            position: fixed;
+            width: 100%;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--primary-gradient);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0;
+            padding: 15px;
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .navbar {
+            background: var(--primary-gradient);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            padding: 0.5rem 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            height: 60px;
+        }
+
+        .navbar-brand {
+            color: #fff !important;
+            font-weight: bold;
+            font-size: 1.8rem;
+            letter-spacing: 2px;
+            text-shadow: 1px 1px 8px rgba(0,0,0,0.08);
+        }
+
+        .main-content {
+            margin-top: 60px;
+            padding-bottom: 20px;
+            height: calc(100% - 60px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .main-title {
+            color: #111 !important;
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .card {
+            background: #fff;
+            border: none;
+            border-radius: var(--card-radius);
+            box-shadow: var(--shadow);
+            transition: transform 0.2s;
+            margin-bottom: 0;
+            max-width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+        }
+
+        .card-body {
+            padding: 15px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-title {
+            color: var(--primary-dark);
+            font-weight: bold;
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 0.6rem;
+        }
+
+        .card-text {
+            flex: 1;
+            font-size: 1.1rem;
+            color: #333;
+            margin-bottom: 0.8rem;
+            line-height: 1.5;
+        }
+
+        .status-badge {
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .status-pending {
+            background: linear-gradient(90deg, #ffe259 0%, #ffa751 100%);
+            color: #222;
+        }
+
+        .status-in-progress {
+            background: linear-gradient(90deg, #43cea2 0%, #185a9d 100%);
+            color: #fff;
+        }
+
+        .status-delivered {
+            background: linear-gradient(90deg, #56ab2f 0%, #a8e063 100%);
+            color: #fff;
+        }
+
+        .btn {
+            font-size: 1rem;
+            padding: 0.6rem 1.2rem;
+            min-width: 100px;
+            border-radius: 8px;
+            font-weight: 600;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(90deg, #56ab2f 0%, #a8e063 100%);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(90deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+
+        .btn-group {
+            gap: 0.8rem;
+            display: flex;
+            align-items: center;
+        }
+
+        #ordersList {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            padding: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        #loginSection {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        #loginSection .card {
+            width: 90%;
+            max-width: 400px;
+            margin: 20px auto;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        #loginSection .form-control {
+            border-radius: 10px;
+            padding: 1rem 1.2rem;
+            font-size: 1.2rem;
+        }
+
+        #loginSection .btn-primary {
+            background: var(--primary-gradient);
+            border: none;
+            padding: 1rem 1.5rem;
+            font-size: 1.2rem;
+        }
+
+        #loginSection .btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        #loginSection .form-label {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+        }
+
+        #logoutBtn {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            padding: 0.8rem 1.5rem;
+            font-size: 1.1rem;
+            background: var(--danger-color);
+            border: none;
+            color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 1200px) {
+            #ordersList {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            #ordersList {
+                grid-template-columns: 1fr;
+                gap: 15px;
+                padding: 15px;
+            }
+
+            .card {
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand animate__animated animate__fadeIn" href="/">نظام التوصيل</a>
+        <button id="logoutBtn" class="btn btn-danger d-none" onclick="logout()">تسجيل الخروج</button>
+    </div>
+</nav>
+
+<div class="main-content">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="card animate__animated animate__fadeInDown">
+                    <div class="card-body">
+                        <h2 class="main-title">قائمة الطلبات</h2>
+                        <div id="ordersList">
+                            <!-- الطلبات سيتم إدراجها هنا -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- قسم تسجيل الدخول -->
+<div id="loginSection" class="d-none">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-4">
+                <div class="card p-4">
+                    <h3 class="mb-3 text-center">تسجيل الدخول</h3>
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label for="email" class="form-label">البريد الإلكتروني</label>
+                            <input type="email" class="form-control" id="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">كلمة المرور</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" id="password" required>
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">دخول</button>
+                        <div id="loginError" class="text-danger mt-2" style="display:none;"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// تهيئة Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyCG3hq-knPzBLycrC1Nxpo0dWo9FaffzX4",
+    authDomain: "chefdesk-9d2b7.firebaseapp.com",
+    databaseURL: "https://chefdesk-9d2b7-default-rtdb.firebaseio.com",
+    projectId: "chefdesk-9d2b7",
+    storageBucket: "chefdesk-9d2b7.firebasestorage.app",
+    messagingSenderId: "284469606378",
+    appId: "1:284469606378:web:ff5d1c70e23346435f6493"
+};
+
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+const auth = firebase.auth();
+
+let currentUser = null;
+
+// دالة إظهار قسم تسجيل الدخول
+function showLoginSection() {
+    const loginSection = document.getElementById('loginSection');
+    const logoutBtn = document.getElementById('logoutBtn');
+    
+    if (loginSection) {
+        loginSection.classList.remove('d-none');
+    }
+    
+    if (logoutBtn) {
+        logoutBtn.classList.add('d-none');
+    }
+}
+
+// دالة إخفاء قسم تسجيل الدخول
+function hideLoginSection() {
+    const loginSection = document.getElementById('loginSection');
+    const logoutBtn = document.getElementById('logoutBtn');
+    
+    if (loginSection) {
+        loginSection.classList.add('d-none');
+    }
+    
+    if (logoutBtn) {
+        logoutBtn.classList.remove('d-none');
+    }
+}
+
+// تسجيل الخروج
+function logout() {
+    if (confirm('هل أنت متأكد أنك تريد تسجيل الخروج؟')) {
+        auth.signOut().then(() => {
+            showLoginSection();
+        }).catch((error) => {
+            console.error("Error signing out:", error);
+        });
+    }
+}
+
+// مراقبة حالة المصادقة
+auth.onAuthStateChanged(function(user) {
+    if (user) {
+        currentUser = user;
+        hideLoginSection();
+        fetchUserOrders(user.uid);
+    } else {
+        currentUser = null;
+        showLoginSection();
+    }
+});
+
+// نموذج تسجيل الدخول
+const loginForm = document.getElementById('loginForm');
+if (loginForm) {
+    loginForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        
+        const submitBtn = loginForm.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'جاري تسجيل الدخول...';
+        submitBtn.disabled = true;
+        
+        auth.signInWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                document.getElementById('loginError').style.display = 'none';
+                currentUser = userCredential.user;
+                hideLoginSection();
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            })
+            .catch((error) => {
+                document.getElementById('loginError').textContent = error.message;
+                document.getElementById('loginError').style.display = 'block';
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            });
+    });
+}
+
+function getStatusClass(status) {
+    switch(status) {
+        case 'pending': return 'status-pending';
+        case 'in_progress': return 'status-in-progress';
+        case 'delivered': return 'status-delivered';
+        default: return '';
+    }
+}
+
+function getStatusText(status) {
+    switch(status) {
+        case 'pending': return 'قيد الانتظار';
+        case 'in_progress': return 'قيد التوصيل';
+        case 'delivered': return 'تم التوصيل';
+        default: return status;
+    }
+}
+
+// جلب الطلبات
+function fetchUserOrders(uid) {
+    const ordersList = document.getElementById('ordersList');
+    ordersList.innerHTML = '';
+    
+    const userOrdersRef = database.ref(`users/${uid}/orders`);
+    userOrdersRef.off();
+    userOrdersRef.on('value', (snapshot) => {
+        ordersList.innerHTML = '';
+        const allOrders = snapshot.val() || {};
+        let flatOrders = [];
+        Object.entries(allOrders).forEach(([orderId, order]) => {
+            flatOrders.push({ orderId, ...order });
+        });
+        if (flatOrders.length === 0) {
+            const noOrdersDiv = document.createElement('div');
+            noOrdersDiv.className = 'text-center';
+            noOrdersDiv.innerHTML = '<p class="text-muted">لا توجد طلبات حالياً</p>';
+            ordersList.appendChild(noOrdersDiv);
+        }
+        flatOrders.forEach((order, index) => {
+            const orderCard = document.createElement('div');
+            orderCard.className = 'order-card';
+            orderCard.style.animationDelay = `${index * 0.1}s`;
+            orderCard.innerHTML = `
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">طلب #${order.orderId}</h5>
+                        <p class="card-text">
+                            <span style="display:inline-block;width:1.2em;">👤</span> ${order.customer_name || ''}<br>
+                            <span style="display:inline-block;width:1.2em;">📞</span> ${order.customer_phone || ''}<br>
+                            <span style="display:inline-block;width:1.2em;">📍</span> ${order.customer_address || ''}
+                        </p>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="badge status-badge ${getStatusClass(order.status)}">
+                                ${getStatusText(order.status)}
+                            </span>
+                            <div class="btn-group">
+                                ${order.status === 'pending' ? `
+                                    <button class="btn btn-sm btn-primary" onclick="updateOrderStatus('${order.orderId}', 'in_progress')">بدء التوصيل</button>` : ''}
+                                ${order.status === 'in_progress' ? `
+                                    <button class="btn btn-sm btn-success" onclick="updateOrderStatus('${order.orderId}', 'delivered')">تم التوصيل</button>` : ''}
+                                <button class="btn btn-sm btn-danger" onclick="confirmDelete('${order.orderId}')">حذف</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            ordersList.appendChild(orderCard);
+        });
+    });
+}
+
+// تحديث حالة الطلب
+function updateOrderStatus(orderId, newStatus) {
+    if (!currentUser) return;
+    database.ref(`users/${currentUser.uid}/orders/` + orderId).update({
+        status: newStatus
+    }).then(() => {
+        console.log('تم تحديث الحالة بنجاح');
+    }).catch((error) => {
+        alert('حدث خطأ أثناء تحديث الحالة');
+        console.error("Error updating status: ", error);
+    });
+}
+
+// حذف الطلب
+function confirmDelete(orderId) {
+    if (confirm('هل أنت متأكد من حذف هذا الطلب؟')) {
+        deleteOrder(orderId);
+    }
+}
+
+function deleteOrder(orderId) {
+    if (!currentUser) return;
+    database.ref(`users/${currentUser.uid}/orders/` + orderId).remove()
+        .then(() => {
+            console.log('تم حذف الطلب بنجاح');
+        })
+        .catch((error) => {
+            alert('حدث خطأ أثناء حذف الطلب');
+            console.error("Error deleting order: ", error);
+        });
+}
+
+// منع التمرير المزدوج
+document.addEventListener('touchmove', function(e) {
+    if (e.touches.length > 1) {
+        e.preventDefault();
+    }
+}, { passive: false });
+
+// منع التكبير
+document.addEventListener('gesturestart', function(e) {
+    e.preventDefault();
+}, { passive: false });
+
+// دالة إظهار/إخفاء كلمة المرور
+document.getElementById('togglePassword').addEventListener('click', function() {
+    const passwordInput = document.getElementById('password');
+    const icon = this.querySelector('i');
+    
+    if (passwordInput.type === 'password') {
+        passwordInput.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        passwordInput.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+});
+</script>
+</body>
+</html> 
