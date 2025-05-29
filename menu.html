@@ -558,7 +558,7 @@
             }
             
             .container {
-                margin-top: 120px;
+                margin-top: 110px !important; 
             }
             
             .menu-container {
@@ -1230,7 +1230,7 @@ function updateQuantity(itemId, change, fromCart = false) {
         }
     }
     
-    // إذا تمت الاستدعاء من السلة ولم يكن العنصر مرئيًا، نحدث الواجهة
+    // إذا تمت الاستدعاء من السلة ولم يكن العنصر مرئيًا, نحدث الواجهة
     if (fromCart && !qtyElement) {
         const cartModal = bootstrap.Modal.getInstance(document.getElementById('cartModal'));
         if (cartModal) {
@@ -1490,8 +1490,16 @@ function showCart() {
     const cartModalEl = document.getElementById('cartModal');
     const isOpen = cartModalEl.classList.contains('show');
     if (!isOpen) {
+        // أضف كلاس الأنيميشن
+        cartModalEl.querySelector('.modal-dialog').classList.add('animate__animated', 'animate__zoomIn');
         const cartModal = new bootstrap.Modal(cartModalEl);
-        cartModal.show();}
+        cartModal.show();
+
+        // أزل كلاس الأنيميشن بعد انتهاءه (مدة zoomIn تقريباً 0.5 ثانية)
+        setTimeout(() => {
+            cartModalEl.querySelector('.modal-dialog').classList.remove('animate__animated', 'animate__zoomIn');
+        }, 600);
+    }
 }
 
 // دالة حذف من السلة
