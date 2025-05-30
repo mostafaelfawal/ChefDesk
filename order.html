@@ -13,14 +13,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root {
-            --primary-gradient: linear-gradient(135deg, #43cea2 0%, #185a9d 100%);
-            --primary-color: #43cea2;
-            --primary-dark: #185a9d;
-            --danger-color: #e74c3c;
-            --warning-color: #ffc107;
-            --info-color: #17a2b8;
-            --card-radius: 12px;
-            --shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.15);
+            --primary-gradient: linear-gradient(135deg, #4caf50 0%, #087f23 100%);
+            --primary-color: #4caf50;
+            --primary-dark: #087f23;
+            --danger-color: #d32f2f;
+            --warning-color: #ffb300;
+            --info-color: #0288d1;
+            --card-radius: 16px;
+            --shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
         }
 
         * {
@@ -35,68 +35,74 @@
             overflow-x: hidden;
             position: fixed;
             width: 100%;
+            background: #f9f9f9;
         }
 
         body {
             font-family: 'Cairo', sans-serif;
-            background: var(--primary-gradient);
+            background: #f5f7fa;
             display: flex;
             flex-direction: column;
+            color: #222;
         }
 
         .container {
             max-width: 100%;
-            margin: 0;
-            padding: 15px;
+            margin: 0 auto;
+            padding: 20px 25px;
             flex: 1;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
         }
 
         .navbar {
-            background: var(--primary-gradient);
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-            padding: 0.5rem 0;
+            background: var(--primary-color);
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.1);
+            padding: 0.75rem 1rem;
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
-            z-index: 1000;
-            height: 60px;
+            z-index: 1100;
+            height: 65px;
+            display: flex;
+            align-items: center;
         }
 
         .navbar-brand {
             color: #fff !important;
-            font-weight: bold;
-            font-size: 1.8rem;
-            letter-spacing: 2px;
-            text-shadow: 1px 1px 8px rgba(0,0,0,0.08);
+            font-weight: 900;
+            font-size: 2rem;
+            letter-spacing: 3px;
+            text-shadow: 1px 1px 10px rgba(0,0,0,0.1);
+            user-select: none;
         }
 
         .main-content {
-            margin-top: 60px;
-            padding-bottom: 20px;
-            height: calc(100% - 60px);
+            margin-top: 65px;
+            padding-bottom: 25px;
+            height: calc(100% - 65px);
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
         }
 
         .main-title {
-            color: #111 !important;
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 1.5rem;
+            color: var(--primary-dark);
+            font-size: 2.3rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
             text-align: center;
             position: relative;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
 
         .card {
-            background: #fff;
+            background: #ffffff;
             border: none;
             border-radius: var(--card-radius);
             box-shadow: var(--shadow);
-            transition: transform 0.2s;
-            margin-bottom: 0;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 1.2rem;
             max-width: 100%;
             height: 100%;
             display: flex;
@@ -104,91 +110,99 @@
         }
 
         .card:hover {
-            transform: translateY(-2px);
+            transform: translateY(-6px);
+            box-shadow: 0 12px 28px rgba(0,0,0,0.18);
         }
 
         .card-body {
-            padding: 15px;
+            padding: 25px;
             flex: 1;
             display: flex;
             flex-direction: column;
         }
 
         .card-title {
-            color: var(--primary-dark);
-            font-weight: bold;
-            font-size: 1.3rem;
-            margin-bottom: 0.8rem;
-            border-bottom: 1px solid #f0f0f0;
-            padding-bottom: 0.6rem;
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 0.8rem;
         }
 
         .card-text {
             flex: 1;
-            font-size: 1.1rem;
-            color: #333;
-            margin-bottom: 0.8rem;
-            line-height: 1.5;
+            font-size: 1.15rem;
+            color: #444;
+            margin-bottom: 1rem;
+            line-height: 1.6;
         }
 
         .status-badge {
-            font-size: 1rem;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-            font-weight: 600;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-size: 1.05rem;
+            padding: 0.55rem 1.2rem;
+            border-radius: 25px;
+            font-weight: 700;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.12);
+            text-transform: uppercase;
         }
 
         .status-pending {
-            background: linear-gradient(90deg, #ffe259 0%, #ffa751 100%);
-            color: #222;
+            background: linear-gradient(90deg, #ffd54f 0%, #ffb300 100%);
+            color: #3e2723;
         }
 
         .status-in-progress {
-            background: linear-gradient(90deg, #43cea2 0%, #185a9d 100%);
+            background: linear-gradient(90deg, #4caf50 0%, #087f23 100%);
             color: #fff;
         }
 
         .status-delivered {
-            background: linear-gradient(90deg, #56ab2f 0%, #a8e063 100%);
+            background: linear-gradient(90deg, #388e3c 0%, #81c784 100%);
             color: #fff;
         }
 
         .btn {
-            font-size: 1rem;
-            padding: 0.6rem 1.2rem;
-            min-width: 100px;
-            border-radius: 8px;
-            font-weight: 600;
+            font-size: 1.1rem;
+            padding: 0.7rem 1.4rem;
+            min-width: 120px;
+            border-radius: 12px;
+            font-weight: 700;
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
-            transition: all 0.3s ease;
+            transition: all 0.35s ease;
             border: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+            cursor: pointer;
         }
 
         .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.18);
         }
 
         .btn-primary {
             background: var(--primary-gradient);
             color: white;
+            box-shadow: 0 5px 15px rgba(67, 206, 162, 0.6);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5ce88a 0%, #2a7f4b 100%);
         }
 
         .btn-success {
-            background: linear-gradient(90deg, #56ab2f 0%, #a8e063 100%);
+            background: linear-gradient(90deg, #388e3c 0%, #81c784 100%);
             color: white;
         }
 
         .btn-danger {
-            background: linear-gradient(90deg, #e74c3c 0%, #c0392b 100%);
+            background: linear-gradient(90deg, #d32f2f 0%, #b71c1c 100%);
             color: white;
         }
 
         .btn-group {
-            gap: 0.8rem;
+            gap: 1rem;
             display: flex;
             align-items: center;
         }
@@ -196,84 +210,146 @@
         #ordersList {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            padding: 20px;
+            gap: 24px;
+            padding: 24px;
             max-width: 1400px;
             margin: 0 auto;
         }
 
         #loginSection {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.7);
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 15, 15, 0.85);
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 2000;
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
+            z-index: 2100;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
+            padding: 20px;
         }
 
         #loginSection .card {
-            width: 90%;
+            width: 100%;
             max-width: 400px;
-            margin: 20px auto;
-            animation: slideIn 0.3s ease-out;
+            margin: auto;
+            border-radius: var(--card-radius);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            animation: slideIn 0.4s ease-out;
+            background: white;
+            padding: 2rem 2.5rem;
+            position: relative;
         }
 
-        @keyframes slideIn {
-            from {
-                transform: translateY(-20px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
+        #loginSection h3 {
+            font-weight: 900;
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            letter-spacing: 1.5px;
+        }
+
+        #loginSection .form-label {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--primary-dark);
+            margin-bottom: 0.5rem;
         }
 
         #loginSection .form-control {
             border-radius: 10px;
             padding: 1rem 1.2rem;
-            font-size: 1.2rem;
+            font-size: 1.15rem;
+            border: 1.5px solid #ccc;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        #loginSection .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 10px var(--primary-color);
+            outline: none;
+        }
+
+        #loginSection .input-group {
+            position: relative;
+        }
+
+        #loginSection #togglePassword {
+            position: absolute;
+            top: 50%;
+            right: 12px;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 1.3rem;
+            cursor: pointer;
+            padding: 0;
+            transition: color 0.3s ease;
+        }
+
+        #loginSection #togglePassword:hover {
+            color: var(--primary-dark);
         }
 
         #loginSection .btn-primary {
             background: var(--primary-gradient);
             border: none;
-            padding: 1rem 1.5rem;
-            font-size: 1.2rem;
+            padding: 1.1rem 0;
+            font-size: 1.3rem;
+            font-weight: 800;
+            box-shadow: 0 6px 20px rgba(67, 206, 162, 0.75);
+            border-radius: 12px;
+            margin-top: 1.8rem;
+            width: 100%;
+            transition: background 0.35s ease;
         }
 
         #loginSection .btn-primary:hover {
-            opacity: 0.9;
+            background: linear-gradient(135deg, #5ce88a 0%, #2a7f4b 100%);
         }
 
-        #loginSection .form-label {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 0.8rem;
+        #loginError {
+            color: var(--danger-color);
+            font-weight: 700;
+            font-size: 1.05rem;
+            margin-top: 1rem;
+            text-align: center;
         }
 
         #logoutBtn {
             position: fixed;
             top: 15px;
             left: 15px;
-            z-index: 1001;
-            padding: 0.8rem 1.5rem;
-            font-size: 1.1rem;
+            z-index: 1101;
+            padding: 0.5rem 1.2rem; /* تصغير البادينغ */
+            font-size: 1rem; /* تصغير الخط */
             background: var(--danger-color);
             border: none;
             color: white;
-            border-radius: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            border-radius: 10px; /* تصغير الانحناء */
+            box-shadow: 0 3px 7px rgba(0,0,0,0.25);
+            cursor: pointer;
+            transition: 
+                background 0.3s ease,
+                transform 0.3s ease,
+                box-shadow 0.3s ease;
+            user-select: none;
         }
 
+        #logoutBtn:hover {
+            background: #a52727;
+            transform: scale(1.1) rotate(-3deg);
+            box-shadow: 0 8px 15px rgba(165, 39, 39, 0.8);
+        }
+
+        #logoutBtn:active {
+            transform: scale(0.95) rotate(0deg);
+            box-shadow: 0 4px 8px rgba(165, 39, 39, 0.6);
+        }
         @media (max-width: 1200px) {
             #ordersList {
                 grid-template-columns: repeat(2, 1fr);
@@ -283,14 +359,15 @@
         @media (max-width: 768px) {
             #ordersList {
                 grid-template-columns: 1fr;
-                gap: 15px;
-                padding: 15px;
+                gap: 18px;
+                padding: 18px;
             }
 
             .card {
                 margin: 0;
             }
         }
+
     </style>
 </head>
 <body>
@@ -319,32 +396,26 @@
 </div>
 
 <!-- قسم تسجيل الدخول -->
-<div id="loginSection" class="d-none">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-6 col-lg-4">
-                <div class="card p-4">
-                    <h3 class="mb-3 text-center">تسجيل الدخول</h3>
-                    <form id="loginForm">
-                        <div class="mb-3">
-                            <label for="email" class="form-label">البريد الإلكتروني</label>
-                            <input type="email" class="form-control" id="email" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">كلمة المرور</label>
-                            <div class="input-group">
-                                <input type="password" class="form-control" id="password" required>
-                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">دخول</button>
-                        <div id="loginError" class="text-danger mt-2" style="display:none;"></div>
-                    </form>
+<div id="loginSection" class="d-none" role="dialog" aria-modal="true" aria-labelledby="loginTitle" aria-describedby="loginDesc">
+    <div class="card">
+        <h3 id="loginTitle">تسجيل الدخول</h3>
+        <form id="loginForm" aria-describedby="loginDesc">
+            <div class="mb-4">
+                <label for="email" class="form-label">البريد الإلكتروني</label>
+                <input type="email" class="form-control" id="email" aria-required="true" required>
+            </div>
+            <div class="mb-4 position-relative">
+                <label for="password" class="form-label">كلمة المرور</label>
+                <div class="input-group">
+                    <input type="password" class="form-control" id="password" aria-required="true" required>
+                    <button type="button" id="togglePassword" aria-label="إظهار/إخفاء كلمة المرور">
+                        <i class="fas fa-eye"></i>
+                    </button>
                 </div>
             </div>
-        </div>
+            <button type="submit" class="btn btn-primary">دخول</button>
+            <div id="loginError" style="display:none;"></div>
+        </form>
     </div>
 </div>
 
