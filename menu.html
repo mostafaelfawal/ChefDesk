@@ -1244,25 +1244,6 @@ function updateQuantity(itemId, change, fromCart = false) {
     updateCartCount();
     updateOrderButton();
     
-    // إذا تم إضافة كمية، نقوم بتسجيل المبيعات
-    if (change > 0 && currentUser) {
-        const item = menuItems[itemId];
-        if (item) {
-            const saleRef = database.ref(`users/${currentUser.uid}/sales`).push();
-            const saleData = {
-                timestamp: firebase.database.ServerValue.TIMESTAMP,
-                items: {
-                    [itemId]: {
-                        name: item.name,
-                        price: item.price,
-                        quantity: change
-                    }
-                },
-                total_amount: item.price * change
-            };
-            saleRef.set(saleData);
-        }
-    }
     
     if (qtyElement) {
         qtyElement.classList.add('animate__animated', change > 0 ? 'animate__bounceIn' : 'animate__shakeX');
@@ -1339,7 +1320,7 @@ function completeOrder() {
     });
     
     // حفظ الطلب في Firebase
-    const orderRef = database.ref(`users/${currentUser.uid}/orders`).push();
+    const orderRef = database.ref(`users/${currentUser.uid}/OrderToKichen`).push();
     orderRef.set(orderData).then(() => {
         // إعادة تعيين الكميات في المتغير العام
         itemQuantities = {};
