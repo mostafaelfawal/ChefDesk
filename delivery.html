@@ -306,7 +306,7 @@
                     }</span></div>
                     <div class="detail-row">💰 <span>Total: ${
                       order.total || 0
-                    } ${order.currency || "SAR"}</span></div>
+                    } ${order.currency || "$"}</span></div>
                     <div class="items-header"><strong>Items (${
                       order.items?.length || 0
                     }):</strong></div>
@@ -314,7 +314,7 @@
                       ?.map(
                         (item) => `
                     <div class="detail-row item-row">
-                        ${item.quantity} × ${item.name} - ${item.price || 0} SAR
+                        ${item.quantity} × ${item.name} - ${item.price || 0} $
                     </div>`
                       )
                       .join("")}
