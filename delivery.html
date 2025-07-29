@@ -258,9 +258,7 @@
           .doc(userId)
           .collection("kitchenOrders")
           .where("status", "==", "completed") // فقط المكتملة
-          .where("orderType", "==", "Delivery") // فقط التوصيل
-          .orderBy("actualCompletedAt", "desc"); // الترتيب حسب وقت الإكمال
-
+          .orderBy("completedAt", "desc"); // نرتب على completedAt
         const unsubscribe = q.onSnapshot(
           (snapshot) => {
             ordersContainer.innerHTML = "";
@@ -273,6 +271,8 @@
 
             snapshot.forEach((doc) => {
               const order = doc.data();
+              // نتأكد انها طلبات Delivery فقط
+              if (order.orderType !== "Delivery") return;
               const orderId = doc.id;
 
               // إنشاء بطاقة الطلب
