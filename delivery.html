@@ -370,21 +370,14 @@
       // Check for QR code token in URL
       function checkForToken() {
         const urlParams = new URLSearchParams(window.location.search);
-        const token = urlParams.get("token");
-
-        if (token) {
-          loginWithToken(token).then((user) => {
-            if (user) {
-              console.log("User logged in:", user.uid);
-              fetchOrders(user.uid);
+        
+        const uid = urlParams.get("uid");
+            if (uid) {
+            fetchOrders(uid);
             } else {
-              alert("Invalid token. Please scan the QR code again.");
+            document.getElementById("ordersContainer").innerHTML =
+                '<div class="empty-orders">No UID found in URL</div>';
             }
-          });
-        } else {
-          document.getElementById("ordersContainer").innerHTML =
-            '<div class="empty-orders">Please scan the QR code to access delivery orders</div>';
-        }
       }
 
       // Initialize the app
