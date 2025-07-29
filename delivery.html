@@ -257,7 +257,7 @@
           .collection("users")
           .doc(userId)
           .collection("kitchenOrders")
-          .where("status", "==", "completed");
+          .where("status", "in", ["completed", "delivering", "delivered"]); // نجلب جميع هذه الحالات
 
         const unsubscribe = q.onSnapshot(
           (snapshot) => {
@@ -269,27 +269,26 @@
               return;
             }
 
-            // نحول البيانات إلى مصفوفة
             const orders = [];
             snapshot.forEach((doc) => {
               const data = doc.data();
-              // فلترة طلبات التوصيل فقط
               if (data.orderType === "Delivery") {
                 orders.push({ id: doc.id, ...data });
               }
             });
 
-            // نرتب الطلبات محلياً حسب completedAt (الأحدث أولاً)
+            // نرتب محليًا حسب completedAt
             orders.sort((a, b) => {
               const ta = a.completedAt?.seconds || 0;
               const tb = b.completedAt?.seconds || 0;
               return tb - ta;
             });
 
-            // عرض الطلبات
             orders.forEach((order) => {
               const orderCard = document.createElement("div");
               orderCard.className = "order-card";
+
+              // HTML للطلب
               orderCard.innerHTML = `
                 <div class="order-header">
                     <h3>${order.orderId || "ORD-" + order.id.slice(0, 8)}</h3>
@@ -307,7 +306,7 @@
                     }</span></div>
                     <div class="detail-row">💰 <span>Total: ${
                       order.total || 0
-                    } ${order.currency || "$"}</span></div>
+                    } ${order.currency || "SAR"}</span></div>
                     <div class="items-header"><strong>Items (${
                       order.items?.length || 0
                     }):</strong></div>
@@ -315,12 +314,70 @@
                       ?.map(
                         (item) => `
                     <div class="detail-row item-row">
-                        ${item.quantity} × ${item.name} - ${item.price || 0} $
+                        ${item.quantity} × ${item.name} - ${item.price || 0} SAR
                     </div>`
                       )
                       .join("")}
                 </div>
                 `;
+
+              // قسم الأزرار
+              const actionsDiv = document.createElement("div");
+              actionsDiv.className = "order-actions";
+
+              // إنشاء الأزرار حسب حالة الطلب
+              function renderButtons() {
+                actionsDiv.innerHTML = ""; // مسح الأزرار السابقة
+                if (order.status === "completed") {
+                  const startBtn = document.createElement("button");
+                  startBtn.className = "btn btn-start btn-single";
+                  startBtn.textContent = "بدء التوصيل";
+                  startBtn.onclick = async () => {
+                    await db
+                      .collection("users")
+                      .doc(userId)
+                      .collection("kitchenOrders")
+                      .doc(order.id)
+                      .update({ status: "delivering" });
+                  };
+                  actionsDiv.appendChild(startBtn);
+                } else if (order.status === "delivering") {
+                  const completeBtn = document.createElement("button");
+                  completeBtn.className = "btn btn-complete btn-single";
+                  completeBtn.textContent = "تم التوصيل";
+                  completeBtn.onclick = async () => {
+                    await db
+                      .collection("users")
+                      .doc(userId)
+                      .collection("kitchenOrders")
+                      .doc(order.id)
+                      .update({
+                        status: "delivered",
+                        deliveredAt:
+                          firebase.firestore.FieldValue.serverTimestamp(),
+                      });
+                  };
+                  actionsDiv.appendChild(completeBtn);
+                } else if (order.status === "delivered") {
+                  const deleteBtn = document.createElement("button");
+                  deleteBtn.className = "btn btn-delete btn-single";
+                  deleteBtn.textContent = "حذف";
+                  deleteBtn.onclick = async () => {
+                    if (!confirm("هل تريد حذف هذا الطلب؟")) return;
+                    await db
+                      .collection("users")
+                      .doc(userId)
+                      .collection("kitchenOrders")
+                      .doc(order.id)
+                      .delete();
+                  };
+                  actionsDiv.appendChild(deleteBtn);
+                }
+              }
+
+              renderButtons();
+
+              orderCard.appendChild(actionsDiv);
               ordersContainer.appendChild(orderCard);
             });
           },
