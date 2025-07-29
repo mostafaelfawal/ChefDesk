@@ -370,14 +370,14 @@
       // Check for QR code token in URL
       function checkForToken() {
         const urlParams = new URLSearchParams(window.location.search);
-        
+
         const uid = urlParams.get("uid");
-            if (uid) {
-            fetchOrders(uid);
-            } else {
-            document.getElementById("ordersContainer").innerHTML =
-                '<div class="empty-orders">No UID found in URL</div>';
-            }
+        if (uid) {
+          fetchOrders(uid);
+        } else {
+          document.getElementById("ordersContainer").innerHTML =
+            '<div class="empty-orders">No UID found in URL</div>';
+        }
       }
 
       // Initialize the app
