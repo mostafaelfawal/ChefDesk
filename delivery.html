@@ -221,10 +221,10 @@
       };
 
       // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const auth = firebase.auth();
-        
+      const app = firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+      const auth = firebase.auth();
+
       // Function to handle QR code login
       async function loginWithToken(token) {
         try {
@@ -236,6 +236,19 @@
         }
       }
 
+      function formatDate(timestamp) {
+        if (!timestamp?.seconds) return "No date";
+        const date = new Date(timestamp.seconds * 1000);
+        return date.toLocaleString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        });
+      }
+
       // Function to fetch and display orders
       function fetchOrders(userId) {
         const ordersContainer = document.getElementById("ordersContainer");
@@ -244,8 +257,9 @@
           .collection("users")
           .doc(userId)
           .collection("kitchenOrders")
-          .where("status", "==", "completed")
-          .orderBy("createdAt", "desc");
+          .where("status", "==", "completed") // فقط المكتملة
+          .where("orderType", "==", "Delivery") // فقط التوصيل
+          .orderBy("actualCompletedAt", "desc"); // الترتيب حسب وقت الإكمال
 
         const unsubscribe = q.onSnapshot(
           (snapshot) => {
@@ -253,7 +267,7 @@
 
             if (snapshot.empty) {
               ordersContainer.innerHTML =
-                '<div class="empty-orders">No completed orders available</div>';
+                '<div class="empty-orders">No delivery orders available</div>';
               return;
             }
 
@@ -261,67 +275,48 @@
               const order = doc.data();
               const orderId = doc.id;
 
-              // Create order card
+              // إنشاء بطاقة الطلب
               const orderCard = document.createElement("div");
               orderCard.className = "order-card";
               orderCard.innerHTML = `
-                        <div class="order-header">
-                            <h3>${order.orderId || "Order #" + orderId}</h3>
+                    <div class="order-header">
+                        <h3>${
+                          order.orderId || "ORD-" + orderId.slice(0, 8)
+                        }</h3>
+                        <small>${formatDate(order.actualCompletedAt)}</small>
+                    </div>
+                    <div class="order-details">
+                        <div class="detail-row">
+                        👤 <span>${order.customer?.name || "No name"}</span>
                         </div>
-                        <div class="order-details">
-                            <div class="detail-row">
-                                👤 <span>${
-                                  order.customer?.name || "No name"
-                                }</span>
-                            </div>
-                            <div class="detail-row">
-                                📞 <span>${
-                                  order.customer?.phone || "No phone"
-                                }</span>
-                            </div>
-                            <div class="detail-row">
-                                📍 <span>${
-                                  order.customer?.address || "No address"
-                                }</span>
-                            </div>
-                            ${
-                              order.items
-                                ? `
-                            <div class="detail-row">
-                                <strong>Items:</strong>
-                            </div>
-                            ${order.items
-                              .map(
-                                (item) => `
-                                <div class="detail-row">
-                                    ${item.quantity} × ${item.name} - ${
-                                  item.price
-                                } ${order.currency || "SAR"}
-                                </div>
-                            `
-                              )
-                              .join("")}
-                            `
-                                : ""
-                            }
-                            ${
-                              order.notes
-                                ? `
-                            <div class="detail-row">
-                                <strong>Notes:</strong> ${order.notes}
-                            </div>
-                            `
-                                : ""
-                            }
+                        <div class="detail-row">
+                        📞 <span>${order.customer?.phone || "No phone"}</span>
                         </div>
-                        <div class="order-actions">
-                            <button class="btn btn-delete" onclick="deleteOrder('${userId}', '${orderId}')">
-                                Delete
-                            </button>
-                            <button class="btn btn-complete" onclick="completeDelivery('${userId}', '${orderId}')">
-                                Delivery Complete
-                            </button>
+                        <div class="detail-row">
+                        📍 <span>${
+                          order.customer?.address || "No address"
+                        }</span>
                         </div>
+                        <div class="detail-row">
+                        💰 <span>Total: ${order.total || 0} ${
+                order.currency || "SAR"
+              }</span>
+                        </div>
+                        <div class="items-header">
+                        <strong>Items (${order.items?.length || 0}):</strong>
+                        </div>
+                        ${order.items
+                          ?.map(
+                            (item) => `
+                        <div class="detail-row item-row">
+                            ${item.quantity} × ${item.name} - ${
+                              item.price || 0
+                            } SAR
+                        </div>
+                        `
+                          )
+                          .join("")}
+                    </div>
                     `;
 
               ordersContainer.appendChild(orderCard);
@@ -330,7 +325,7 @@
           (error) => {
             console.error("Error getting orders:", error);
             ordersContainer.innerHTML =
-              '<div class="empty-orders">Error loading orders</div>';
+              '<div class="empty-orders">Error loading delivery orders</div>';
           }
         );
 
@@ -367,10 +362,8 @@
               status: "delivered",
               deliveredAt: firebase.firestore.FieldValue.serverTimestamp(),
             });
-          console.log("Delivery marked as complete");
         } catch (error) {
-          console.error("Error completing delivery:", error);
-          alert("Failed to complete delivery");
+          console.error("Delivery error:", error);
         }
       }
 
