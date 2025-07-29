@@ -257,8 +257,8 @@
           .collection("users")
           .doc(userId)
           .collection("kitchenOrders")
-          .where("status", "==", "completed") // فقط المكتملة
-          .orderBy("completedAt", "desc"); // نرتب على completedAt
+          .where("status", "==", "completed"); // فقط المكتملة بدون orderBy
+
         const unsubscribe = q.onSnapshot(
           (snapshot) => {
             ordersContainer.innerHTML = "";
@@ -269,56 +269,58 @@
               return;
             }
 
+            // نحول البيانات إلى مصفوفة
+            const orders = [];
             snapshot.forEach((doc) => {
-              const order = doc.data();
-              // نتأكد انها طلبات Delivery فقط
-              if (order.orderType !== "Delivery") return;
-              const orderId = doc.id;
+              const data = doc.data();
+              // فلترة طلبات التوصيل فقط
+              if (data.orderType === "Delivery") {
+                orders.push({ id: doc.id, ...data });
+              }
+            });
 
-              // إنشاء بطاقة الطلب
+            // نرتب الطلبات محلياً حسب completedAt (الأحدث أولاً)
+            orders.sort((a, b) => {
+              const ta = a.completedAt?.seconds || 0;
+              const tb = b.completedAt?.seconds || 0;
+              return tb - ta;
+            });
+
+            // عرض الطلبات
+            orders.forEach((order) => {
               const orderCard = document.createElement("div");
               orderCard.className = "order-card";
               orderCard.innerHTML = `
-                    <div class="order-header">
-                        <h3>${
-                          order.orderId || "ORD-" + orderId.slice(0, 8)
-                        }</h3>
-                        <small>${formatDate(order.actualCompletedAt)}</small>
-                    </div>
-                    <div class="order-details">
-                        <div class="detail-row">
-                        👤 <span>${order.customer?.name || "No name"}</span>
-                        </div>
-                        <div class="detail-row">
-                        📞 <span>${order.customer?.phone || "No phone"}</span>
-                        </div>
-                        <div class="detail-row">
-                        📍 <span>${
-                          order.customer?.address || "No address"
-                        }</span>
-                        </div>
-                        <div class="detail-row">
-                        💰 <span>Total: ${order.total || 0} ${
-                order.currency || "SAR"
-              }</span>
-                        </div>
-                        <div class="items-header">
-                        <strong>Items (${order.items?.length || 0}):</strong>
-                        </div>
-                        ${order.items
-                          ?.map(
-                            (item) => `
-                        <div class="detail-row item-row">
-                            ${item.quantity} × ${item.name} - ${
-                              item.price || 0
-                            } SAR
-                        </div>
-                        `
-                          )
-                          .join("")}
-                    </div>
-                    `;
-
+                <div class="order-header">
+                    <h3>${order.orderId || "ORD-" + order.id.slice(0, 8)}</h3>
+                    <small>${formatDate(order.completedAt)}</small>
+                </div>
+                <div class="order-details">
+                    <div class="detail-row">👤 <span>${
+                      order.customer?.name || "No name"
+                    }</span></div>
+                    <div class="detail-row">📞 <span>${
+                      order.customer?.phone || "No phone"
+                    }</span></div>
+                    <div class="detail-row">📍 <span>${
+                      order.customer?.address || "No address"
+                    }</span></div>
+                    <div class="detail-row">💰 <span>Total: ${
+                      order.total || 0
+                    } ${order.currency || "SAR"}</span></div>
+                    <div class="items-header"><strong>Items (${
+                      order.items?.length || 0
+                    }):</strong></div>
+                    ${order.items
+                      ?.map(
+                        (item) => `
+                    <div class="detail-row item-row">
+                        ${item.quantity} × ${item.name} - ${item.price || 0} SAR
+                    </div>`
+                      )
+                      .join("")}
+                </div>
+                `;
               ordersContainer.appendChild(orderCard);
             });
           },
