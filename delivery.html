@@ -41,6 +41,13 @@
         border-radius: 8px 8px 0 0;
         border-bottom: 10px solid green;
       }
+      .header-title {
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--border-color);
+        margin-bottom: 10px;
+        align-items: center;
+      }
       .container {
         background-color: white;
         border-radius: 0 0 8px 8px;
@@ -49,9 +56,6 @@
       }
       h2 {
         color: var(--text-color);
-        margin-bottom: 20px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid var(--border-color);
       }
       .filter {
         display: inline-flex;
@@ -205,6 +209,10 @@
         box-shadow: 0 3px 8px rgba(46, 204, 113, 0.5);
       }
       @media (max-width: 400px) {
+        .header-title {
+          flex-direction: column;
+          gap: 5px;
+        }
         .filter {
           flex-direction: column;
           align-items: stretch;
@@ -223,8 +231,10 @@
   <body>
     <div class="header"><h1>ChefDesk - Delivery</h1></div>
     <div class="container">
-      <h2>Orders List</h2>
-
+      <div class="header-title">
+        <h2>Orders List</h2>
+        <p>CreatedBy - SoftVanta</p>
+      </div>
       <div class="filter">
         <label for="statusFilter">Filter by status:</label>
         <select id="statusFilter">
