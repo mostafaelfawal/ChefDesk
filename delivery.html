@@ -26,6 +26,12 @@
         background-color: var(--light-gray);
         padding: 15px;
         min-height: 100vh;
+        font-size: clamp(10px, 2vw, 16px);
+      }
+      h1,
+      h2,
+      h3 {
+        font-size: clamp(14px, 4vw, 24px);
       }
       .header {
         text-align: center;
@@ -49,6 +55,8 @@
       }
       .filter {
         display: inline-flex;
+        flex-wrap: wrap;
+        justify-content: center;
         align-items: center;
         gap: 10px;
         background: #f9f9f9;
@@ -86,13 +94,13 @@
       }
       .orders-container {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 20px;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 10px;
       }
       .order-card {
         border: 1px solid var(--border-color);
-        border-radius: 8px;
-        padding: 15px;
+        border-radius: 10px;
+        padding: clamp(8px, 2vw, 15px);
         transition: transform 0.3s ease;
       }
       .order-card:hover {
@@ -107,14 +115,14 @@
       }
       .order-header h3 {
         color: var(--primary-color);
-        font-size: 18px;
+        font-size: clamp(12px, 3vw, 18px);
         word-break: break-word;
       }
       .detail-row {
         display: flex;
         align-items: center;
         margin-bottom: 10px;
-        font-size: 14px;
+        font-size: clamp(10px, 2.5vw, 14px);
       }
       .detail-row span {
         margin-left: 10px;
@@ -128,7 +136,7 @@
         border-top: 1px dashed var(--border-color);
       }
       .btn {
-        padding: 8px;
+        padding: clamp(4px, 1.5vw, 10px);
         border: none;
         border-radius: 6px;
         cursor: pointer;
@@ -136,9 +144,11 @@
         transition: 0.3s;
         flex: 1;
         text-align: center;
+        font-size: clamp(10px, 3vw, 16px);
       }
-      .btn:active{
+      .btn:active {
         border-bottom: none;
+        margin-top: 4px;
       }
       .btn-delete {
         background-color: var(--danger-color);
@@ -170,6 +180,43 @@
         color: #666;
         font-size: 18px;
       }
+      .sort-btn {
+        background: linear-gradient(135deg, #27ae60, #2ecc71);
+        color: #fff;
+        border: none;
+        padding: 8px 16px;
+        font-weight: bold;
+        font-size: 14px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 10px rgba(46, 204, 113, 0.4);
+        flex: 0;
+      }
+
+      .sort-btn:hover {
+        background: linear-gradient(135deg, #2ecc71, #27ae60);
+        box-shadow: 0 6px 14px rgba(46, 204, 113, 0.6);
+        transform: translateY(-2px);
+      }
+
+      .sort-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 3px 8px rgba(46, 204, 113, 0.5);
+      }
+      @media (max-width: 400px) {
+        .filter {
+          flex-direction: column;
+          align-items: stretch;
+        }
+        .filter label {
+          text-align: center;
+        }
+        .filter select,
+        .sort-btn {
+          width: 100%;
+        }
+      }
     </style>
   </head>
   <body>
@@ -185,6 +232,7 @@
           <option value="delivering">Delivering</option>
           <option value="delivered">Delivered</option>
         </select>
+        <button id="sortBtn" class="sort-btn">Sort: Desc</button>
       </div>
 
       <div class="orders-container" id="ordersContainer">
@@ -336,6 +384,107 @@
           document.getElementById("ordersContainer").innerHTML =
             '<div class="empty-orders">No UID found</div>';
       };
+      let sortDirection = "desc"; // الوضع الافتراضي تنازلي
+
+      function renderOrders() {
+        const container = document.getElementById("ordersContainer");
+        container.innerHTML = "";
+
+        let filtered = allOrders.filter((order) => {
+          if (currentFilter === "all") return true;
+          return order.status === currentFilter;
+        });
+
+        // ترتيب حسب createdAt
+        filtered.sort((a, b) => {
+          const tA = a.createdAt?.seconds || 0;
+          const tB = b.createdAt?.seconds || 0;
+          return sortDirection === "desc" ? tB - tA : tA - tB;
+        });
+
+        if (filtered.length === 0) {
+          container.innerHTML =
+            '<div class="empty-orders">No orders found</div>';
+          return;
+        }
+
+        filtered.forEach(({ id, ...order }) => {
+          const card = document.createElement("div");
+          card.className = "order-card";
+          card.innerHTML = `
+      <div class="order-header">
+        <h3>${order.orderId || "ORD-" + id.slice(0, 8)}</h3>
+        <small>${formatDate(order.createdAt)}</small>
+      </div>
+      <div class="order-details">
+        <div class="detail-row">👤 <span>${
+          order.customer?.name || "No name"
+        }</span></div>
+        <div class="detail-row">📞 <span>${
+          order.customer?.phone || "No phone"
+        }</span></div>
+        <div class="detail-row">📍 <span>${
+          order.customer?.address || "No address"
+        }</span></div>
+      </div>
+    `;
+          const actions = document.createElement("div");
+          actions.className = "order-actions";
+          if (order.status === "completed") {
+            const startBtn = document.createElement("button");
+            startBtn.className = "btn btn-start";
+            startBtn.textContent = "Start Delivery";
+            startBtn.onclick = () =>
+              db
+                .collection("users")
+                .doc(uid)
+                .collection("DeliveryOrders")
+                .doc(id)
+                .update({ status: "delivering" });
+            actions.appendChild(startBtn);
+          } else if (order.status === "delivering") {
+            const completeBtn = document.createElement("button");
+            completeBtn.className = "btn btn-complete";
+            completeBtn.textContent = "Mark Delivered";
+            completeBtn.onclick = () =>
+              db
+                .collection("users")
+                .doc(uid)
+                .collection("DeliveryOrders")
+                .doc(id)
+                .update({
+                  status: "delivered",
+                  deliveredAt: firebase.firestore.FieldValue.serverTimestamp(),
+                });
+            actions.appendChild(completeBtn);
+          } else if (order.status === "delivered") {
+            const deleteBtn = document.createElement("button");
+            deleteBtn.className = "btn btn-delete";
+            deleteBtn.textContent = "Delete";
+            deleteBtn.onclick = () => {
+              if (confirm("Delete this order?")) {
+                db.collection("users")
+                  .doc(uid)
+                  .collection("DeliveryOrders")
+                  .doc(id)
+                  .delete();
+              }
+            };
+            actions.appendChild(deleteBtn);
+          }
+          card.appendChild(actions);
+          container.appendChild(card);
+        });
+      }
+
+      // زر تغيير ترتيب الطلبات
+      document.getElementById("sortBtn").addEventListener("click", () => {
+        sortDirection = sortDirection === "desc" ? "asc" : "desc";
+        document.getElementById("sortBtn").textContent = `Sort: ${
+          sortDirection === "desc" ? "Desc" : "Asc"
+        }`;
+        renderOrders();
+      });
     </script>
   </body>
 </html>
